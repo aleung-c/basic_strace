@@ -1,33 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   get_args.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aleung-c <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/06/22 16:14:10 by aleung-c          #+#    #+#             */
-/*   Updated: 2017/06/22 16:14:13 by aleung-c         ###   ########.fr       */
+/*   Created: 2017/06/23 18:42:20 by aleung-c          #+#    #+#             */
+/*   Updated: 2017/06/23 18:42:21 by aleung-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_strace.h"
 
-int		main(int argc, char **argv)
+/*
+**	Parse the arg string and fill the process struct,
+**	then return said struct.
+*/
+
+t_process		*get_process(char *arg)
 {
-	printf("Hello ft_strace!\n");
-	if (argc > 1)
+	t_process	*process;
+
+	if (access(arg, F_OK|X_OK) == 0)
 	{
-		ft_strace(argc, argv);
+		process = (t_process *)malloc(sizeof(t_process));
+		asprintf(&process->path, "%s", arg);
 	}
 	else
 	{
-		usage();
+		perror("access");
+		process = NULL;
 	}
-	return (0);
-}
-
-
-void	usage()
-{
-	printf("Usage: ./ft_strace [BIN]\n");
+	return (process);
 }

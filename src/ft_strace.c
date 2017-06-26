@@ -43,6 +43,7 @@ void			trace_process(t_process *process)
 	{
 		// child process
 		// need to ptrace the process then execve the said exec.
+		ptrace()
 	}
 	else
 	{

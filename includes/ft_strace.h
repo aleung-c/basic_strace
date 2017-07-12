@@ -13,10 +13,18 @@
 #ifndef FT_STRACE_H
 # define FT_STRACE_H
 
+# define _GNU_SOURCE
 # include <unistd.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <sys/user.h>
+# include <sys/reg.h>
+# include <sys/ptrace.h>
+# include <errno.h>
+// # include <linux/user.h>
 
 /*
 **	Color in text
@@ -55,6 +63,6 @@ void								usage();
 void								ft_strace(int argc, char **argv);
 t_process							*get_process(char *arg);
 
-void								trace_process(t_process *process);
+void								trace_process(t_process *process, int argc, char **argv);
 
 #endif

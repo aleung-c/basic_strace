@@ -3,6 +3,7 @@ NAME = ft_strace
 HEADER = includes/ft_strace.h
 
 SRC = src/main.c \
+src/init_syscall_list.c \
 src/ft_strace.c \
 src/get_args.c
 

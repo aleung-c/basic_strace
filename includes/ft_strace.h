@@ -18,6 +18,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <sys/signal.h>
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <sys/user.h>
@@ -41,13 +42,28 @@
 # define KRESET "\x1B[0m"
 
 /*
+**	Program Defines
+*/
+
+# define SYSCALLS_NB 313
+
+/*
 **	Program structs.
 */
 
+/*
+** syscall format : number, then for each number, as many arg strings as needed.
+*/
+
+typedef struct						s_syscall_list
+{
+	char							***list;
+
+}									t_syscall_list;
+
 typedef struct						s_ft_strace
 {
-
-
+	t_syscall_list					syscall_list;
 }									t_ft_strace;
 
 typedef struct						s_process
@@ -60,9 +76,13 @@ typedef struct						s_process
 */
 
 void								usage();
+
 void								ft_strace(int argc, char **argv);
+
+void								init_syscall_list(t_ft_strace *ft_strace);
+
 t_process							*get_process(char *arg);
 
-void								trace_process(t_process *process, int argc, char **argv);
+void								trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char **argv);
 
 #endif

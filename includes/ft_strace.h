@@ -45,11 +45,25 @@
 **	Program Defines
 */
 
-# define SYSCALLS_NB 313
+# define SYSCALLS_NB 328
+# define SYSCALLS_NB_COL 8 // nb of columns for each syscall
 
 /*
 **	Program structs.
 */
+
+enum e_syscall_col
+{
+	SYSCALL_NB,
+	SYSCALL_RET,
+	SYSCALL_NAME,
+	SYSCALL_RDI,
+	SYSCALL_RSI,
+	SYSCALL_RDX,
+	SYSCALL_R10,
+	SYSCALL_R8,
+	SYSCALL_R9
+};
 
 /*
 ** syscall format : number, then for each number, as many arg strings as needed.

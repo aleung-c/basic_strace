@@ -25,10 +25,11 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 	char			*word;
 	size_t			buf_size;
 	int				line_number;
+	int				i;
 
 	ft_strace->syscall_list.list = NULL;
-	ft_strace->syscall_list.list = (char **)malloc(sizeof(char *) * SYSCALLS_NB);
-	if ((fp = fopen("./ressources/syscall_list.txt", "r")) == NULL)
+	ft_strace->syscall_list.list = (char ***)malloc(sizeof(char **) * SYSCALLS_NB);
+	if ((fp = fopen("./ressources/syscall_list.csv", "r")) == NULL)
 	{
 		printf("File opening error. Syscall list not found\n");
 		exit(-1);
@@ -41,12 +42,24 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 		while ((getline(&buf, &buf_size, fp)) && line_number != 313)
 		{
 			original_buf = buf;
-			// printf("%s\n", buf);
-			word = strtok(buf, "\t");
-			word = strtok(NULL, "\t");
-			// printf("syscall name = %s\n", word);
-			ft_strace->syscall_list.list[line_number] = (char *)malloc(sizeof(char) * strlen(word) + 1);
-			strncpy(ft_strace->syscall_list.list[line_number], word, strlen(word));
+			ft_strace->syscall_list.list[line_number] = (char **)malloc(sizeof(char *) * SYSCALLS_NB_COL);
+
+			// init each syscall subvalue to null.
+			for (i = 0; i != SYSCALLS_NB_COL; i++)
+			{
+				ft_strace->syscall_list.list[line_number][i] = NULL;
+			}
+
+			// Actual line parsing. CSV format --> separator is the ','
+			word = strtok(buf, ",");
+
+			for (i = 0; word != NULL; word = strtok(NULL, ","), i++)
+			{		
+				printf("%s \n", word);
+				ft_strace->syscall_list.list[line_number][i] = (char *)malloc(sizeof(char) * strlen(word) + 1);
+				ft_strace->syscall_list.list[line_number][i][strlen(word)] = '\0';
+				strncpy(ft_strace->syscall_list.list[line_number][i], word, strlen(word));
+			}
 			free(original_buf);
 			buf = NULL;
 			line_number++;
@@ -54,7 +67,7 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 		}
 		free(buf);
 		fclose(fp);
-		printf("Scooped every syscall!\n");
+		printf(KBLU "Scooped every syscall!\n" KRESET);
 		return ;
 	}
 	return ;

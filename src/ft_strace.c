@@ -75,7 +75,7 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char 
 			// if (orig_rax == -1)
 			// 	perror("ptrace");
 			if (orig_rax != -1)
-				printf("%s()\n", ft_strace->syscall_list.list[orig_rax]);
+				printf("%s()\n", ft_strace->syscall_list.list[orig_rax][SYSCALL_NAME]);
 			// ptrace(PTRACE_SYSCALL, pid, 0, 0);
 			// ptrace(PTRACE_CONT, pid, 0, 0); // ptrace continue.
 		}

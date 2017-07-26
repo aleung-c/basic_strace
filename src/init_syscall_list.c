@@ -39,10 +39,12 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 		buf = NULL;
 		buf_size = 0;
 		line_number = 0;
-		while ((getline(&buf, &buf_size, fp)) && line_number != 313)
+		while ((getline(&buf, &buf_size, fp))
+				&& line_number != SYSCALLS_NB)
 		{
 			original_buf = buf;
-			ft_strace->syscall_list.list[line_number] = (char **)malloc(sizeof(char *) * SYSCALLS_NB_COL);
+			ft_strace->syscall_list.list[line_number] =
+				(char **)malloc(sizeof(char *) * SYSCALLS_NB_COL);
 
 			// init each syscall subvalue to null.
 			for (i = 0; i != SYSCALLS_NB_COL; i++)
@@ -51,23 +53,27 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 			}
 
 			// Actual line parsing. CSV format --> separator is the ','
-			word = strtok(buf, ",");
-
-			for (i = 0; word != NULL; word = strtok(NULL, ","), i++)
-			{		
-				printf("%s \n", word);
-				ft_strace->syscall_list.list[line_number][i] = (char *)malloc(sizeof(char) * strlen(word) + 1);
-				ft_strace->syscall_list.list[line_number][i][strlen(word)] = '\0';
-				strncpy(ft_strace->syscall_list.list[line_number][i], word, strlen(word));
+			word = strtok(buf, ",\n");
+			for (i = 0; word != NULL; word = strtok(NULL, ",\n"), i++)
+			{
+				if (strncmp(word, "NULL", 4) != 0)
+				{
+					printf("word = [%s] \n", word);
+					ft_strace->syscall_list.list[line_number][i] =
+						(char *)malloc(sizeof(char) * strlen(word) + 1);
+					ft_strace->syscall_list.list[line_number][i][strlen(word)] = '\0';
+					strncpy(ft_strace->syscall_list.list[line_number][i], word, strlen(word));
+				}
 			}
 			free(original_buf);
 			buf = NULL;
 			line_number++;
 			printf("one line done #%d\n", line_number);
+			// sleep(10);
 		}
 		free(buf);
 		fclose(fp);
-		printf(KBLU "Scooped every syscall!\n" KRESET);
+		// printf(KBLU "Scooped every syscall!\n" KRESET);
 		return ;
 	}
 	return ;

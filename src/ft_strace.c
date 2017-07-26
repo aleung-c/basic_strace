@@ -40,7 +40,6 @@ void			ft_strace(int argc, char **argv)
 void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char **argv)
 {
 	int			pid;
-	long		orig_rax;
 	int			status;
 
 	(void)ft_strace;
@@ -55,6 +54,7 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char 
 	}
 	else
 	{
+		process->pid = pid;
 		// Parent process. pid var has the pid of child.
 		ptrace(PTRACE_SEIZE, pid, NULL, PTRACE_O_TRACESYSGOOD);
 		ptrace(PTRACE_INTERRUPT, pid, 0, 0);
@@ -63,21 +63,20 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char 
 			ptrace(PTRACE_SYSCALL, pid, 0, 0);
 			waitpid(-1, &status, WUNTRACED);
 			if (WIFEXITED(status))
+			{
 				break;
+			}
 			if (WIFSTOPPED(status))
 			{
-				// printf("signal stop!\n");
+				if (WIFSIGNALED(status))
+				{
+					printf("signal stop with %d!\n",  WTERMSIG(status));
+				}
+				else
+				{
+					display_syscall(ft_strace, process);
+				}
 			}
-			orig_rax = ptrace(PTRACE_PEEKUSER, pid,
-				(sizeof(unsigned long long int) * ORIG_RAX), NULL);
-			// orig_rax = ptrace(PTRACE_PEEKUSER, pid,
-			// 	(sizeof(unsigned long long int) * ORIG_RAX), NULL);
-			// if (orig_rax == -1)
-			// 	perror("ptrace");
-			if (orig_rax != -1)
-				printf("%s()\n", ft_strace->syscall_list.list[orig_rax][SYSCALL_NAME]);
-			// ptrace(PTRACE_SYSCALL, pid, 0, 0);
-			// ptrace(PTRACE_CONT, pid, 0, 0); // ptrace continue.
 		}
 	}
 }

@@ -58,7 +58,7 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 			{
 				if (strncmp(word, "NULL", 4) != 0)
 				{
-					printf("word = [%s] \n", word);
+					// printf("word = [%s] \n", word);
 					ft_strace->syscall_list.list[line_number][i] =
 						(char *)malloc(sizeof(char) * strlen(word) + 1);
 					ft_strace->syscall_list.list[line_number][i][strlen(word)] = '\0';
@@ -68,7 +68,7 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 			free(original_buf);
 			buf = NULL;
 			line_number++;
-			printf("one line done #%d\n", line_number);
+			// printf("one line done #%d\n", line_number);
 			// sleep(10);
 		}
 		free(buf);

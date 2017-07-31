@@ -36,6 +36,7 @@ void			ft_strace(int argc, char **argv)
 */
 
 // TODO !! : Use sigprocmask or the grade will be 0 !
+// => must catch in the tracer every signal that can stop the tracer!
 
 void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char **argv)
 {

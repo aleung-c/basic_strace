@@ -78,6 +78,7 @@ typedef struct						s_syscall_list
 typedef struct						s_ft_strace
 {
 	t_syscall_list					syscall_list;
+	struct user_regs_struct			regs;
 }									t_ft_strace;
 
 typedef struct						s_process
@@ -98,13 +99,18 @@ void								init_syscall_list(t_ft_strace *ft_strace);
 
 t_process							*get_process(char *arg);
 
-void								trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char **argv);
+void								trace_process(t_ft_strace *ft_strace,
+										t_process *process, int argc, char **argv);
 
-void								display_syscall(t_ft_strace *ft_strace, t_process *process);
+void								display_syscall(t_ft_strace *ft_strace,
+										t_process *process);
 
-void								display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
+void								display_arg_from_type(t_ft_strace *ft_strace,
+										t_process *process,
 										long syscall_nb, long orig_value, int cur_arg);
 
 int									get_user_reg_offset(int cur_arg);
+long int							get_reg_from_struct(int cur_arg,
+										struct user_regs_struct *regs);
 
 #endif

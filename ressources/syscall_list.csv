@@ -7,9 +7,9 @@
 6,I,sys_lstat,fconst char *filename,struct stat *statbuf,NULL,NULL,NULL,NULL
 7,I,sys_poll,struct poll_fd *ufds,unsigned int nfds,long timeout_msecs,NULL,NULL,NULL
 8,I,sys_lseek,unsigned int fd,off_t offset,unsigned int origin,NULL,NULL,NULL
-9,I,sys_mmap,unsigned long addr,unsigned long len,unsigned long prot,unsigned long flags,unsigned long fd,unsigned long off
-10,I,sys_mprotect,unsigned long start,size_t len,unsigned long prot,NULL,NULL,NULL
-11,I,sys_munmap,unsigned long addr,size_t len,NULL,NULL,NULL,NULL
+9,P,sys_mmap,void *addr,unsigned long len,unsigned long prot,unsigned long flags,unsigned long fd,unsigned long off
+10,I,sys_mprotect,void *addr,size_t len,unsigned long prot,NULL,NULL,NULL
+11,I,sys_munmap,void *addr,size_t len,NULL,NULL,NULL,NULL
 12,I,sys_brk,unsigned long brk,NULL,NULL,NULL,NULL,NULL
 13,I,sys_rt_sigaction,int sig,const struct sigaction *act,struct sigaction *oact,size_t sigsetsize,NULL,NULL
 14,I,sys_rt_sigprocmask,int how,sigset_t *nset,sigset_t *oset,size_t sigsetsize,NULL,NULL
@@ -23,7 +23,7 @@
 22,I,sys_pipe,int *filedes,NULL,NULL,NULL,NULL,NULL
 23,I,sys_select,int n,fd_set *inp,fd_set *outp,fd_set*exp,struct timeval *tvp,NULL
 24,I,sys_sched_yield,NULL,NULL,NULL,NULL,NULL,NULL
-25,I,sys_mremap,unsigned long addr,unsigned long old_len,unsigned long new_len,unsigned long flags,unsigned long new_addr,NULL
+25,P,sys_mremap,void *addr,unsigned long old_len,unsigned long new_len,unsigned long flags,unsigned long new_addr,NULL
 26,I,sys_msync,unsigned long start,size_t len,int flags,NULL,NULL,NULL
 27,I,sys_mincore,unsigned long start,size_t len,unsigned char *vec,NULL,NULL,NULL
 28,I,sys_madvise,unsigned long start,size_t len_in,int behavior,NULL,NULL,NULL
@@ -99,7 +99,7 @@
 98,I,sys_getrusage,int who,struct rusage *ru,NULL,NULL,NULL,NULL
 99,I,sys_sysinfo,struct sysinfo *info,NULL,NULL,NULL,NULL,NULL
 100,I,sys_times,struct sysinfo *info,NULL,NULL,NULL,NULL,NULL
-101,I,sys_ptrace,long request,long pid,unsigned long addr,unsigned long data,NULL,NULL
+101,I,sys_ptrace,long request,long pid,void *addr,unsigned long data,NULL,NULL
 102,I,sys_getuid,NULL,NULL,NULL,NULL,NULL,NULL
 103,I,sys_syslog,int type,char *buf,int len,NULL,NULL,NULL
 104,I,sys_getgid,NULL,NULL,NULL,NULL,NULL,NULL
@@ -214,7 +214,7 @@
 213,I,sys_epoll_create,int size,NULL,NULL,NULL,NULL,NULL
 214,I,sys_epoll_ctl_old,NOT IMPLEMENTED,NULL,NULL,NULL,NULL,NULL
 215,I,sys_epoll_wait_old,NOT IMPLEMENTED,NULL,NULL,NULL,NULL,NULL
-216,I,sys_remap_file_pages,unsigned long start,unsigned long size,unsigned long prot,unsigned long pgoff,unsigned long flags,NULL
+216,P,sys_remap_file_pages,unsigned long start,unsigned long size,unsigned long prot,unsigned long pgoff,unsigned long flags,NULL
 217,I,sys_getdents64,unsigned int fd,struct linux_dirent64 *dirent,unsigned int count,NULL,NULL,NULL
 218,I,sys_set_tid_address,int *tidptr,NULL,NULL,NULL,NULL,NULL
 219,I,sys_restart_syscall,NULL,NULL,NULL,NULL,NULL,NULL
@@ -237,7 +237,7 @@
 236,I,sys_vserver,NOT IMPLEMENTED,NULL,NULL,NULL,NULL,NULL
 237,I,sys_mbind,unsigned long start,unsigned long len,unsigned long mode,unsigned long *nmask,unsigned long maxnode,unsigned flags
 238,I,sys_set_mempolicy,int mode,unsigned long *nmask,unsigned long maxnode,NULL,NULL,NULL
-239,I,sys_get_mempolicy,int *policy,unsigned long *nmask,unsigned long maxnode,unsigned long addr,unsigned long flags,NULL
+239,I,sys_get_mempolicy,int *policy,unsigned long *nmask,unsigned long maxnode,void *addr,unsigned long flags,NULL
 240,I,sys_mq_open,const char *u_name,int oflag,mode_t mode,struct mq_attr *u_attr,NULL,NULL
 241,I,sys_mq_unlink,const char *u_name,NULL,NULL,NULL,NULL,NULL
 242,I,sys_mq_timedsend,mqd_t mqdes,const char *u_msg_ptr,size_t msg_len,unsigned int msg_prio,const stuct timespec *u_abs_timeout,NULL

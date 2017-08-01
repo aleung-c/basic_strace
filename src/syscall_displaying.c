@@ -20,13 +20,11 @@
 void		display_syscall(t_ft_strace *ft_strace, t_process *process)
 {
 	long						orig_rax; // SYSCALL_NB
-	// long						orig_value; // SYSCALL_NB
+	long						ret_rax; // SYSCALL_RET
 	int							cur_arg;
-	// struct user_regs_struct		regs;
 	static int					in_syscall = 0;
 
 	(void)ft_strace;
-	// orig_value = 0;
 	if (in_syscall == 0)
 	{
 		// entering syscall
@@ -53,10 +51,23 @@ void		display_syscall(t_ft_strace *ft_strace, t_process *process)
 	}
 	else
 	{
-		// exiting syscall - get return val;
+		// exiting syscall - display return val;
 		orig_rax = ptrace(PTRACE_PEEKUSER, process->pid,
 			(sizeof(unsigned long long int) * ORIG_RAX), NULL);
-		printf(" = %ld\n", orig_rax);
+		ret_rax = ptrace(PTRACE_PEEKUSER, process->pid,
+			(sizeof(unsigned long long int) * RAX), NULL);
+		if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "P", 1) == 0)
+		{
+			printf(" = %p\n", (char *)ret_rax);
+		}
+		else if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "I", 1) == 0)
+		{
+			printf(" = %ld\n", ret_rax);
+		}
+		else if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "X", 1) == 0)
+		{
+			printf(" = ?\n");
+		}
 		in_syscall = 0;
 	}
 }
@@ -81,34 +92,105 @@ void	display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
 	// printf("arg_type_str = %s\n", arg_type_str);
 	if (arg_type_str)
 	{
-		if ((strncmp(arg_type_str, "const char *", 12) == 0
-			|| strncmp(arg_type_str, "char *", 6) == 0)
-			&& strstr(arg_type_str, "[]") == NULL)
+		// ----- Display char pointer
+		if (strstr(arg_type_str, "char *") != NULL)
 		{
-			while (end_found == 0 && i != 5)
+			if (strstr(arg_type_str, "[]") == NULL)
 			{
-				// printf("%016x\n", (unsigned int)orig_value);
-				word_value = ptrace(PTRACE_PEEKDATA, process->pid,
-					get_reg_from_struct(cur_arg, &ft_strace->regs) + (i * 8), NULL);
-
-				memmove(value_buffer + (i * 8), &word_value, sizeof(word_value)); // moving 8 bytes
-				if (memchr(value_buffer + (i * 8), 0, 8) != NULL)
+				while (end_found == 0 && i != 5)
 				{
-					end_found = 1;
+					// printf("%016x\n", (unsigned int)orig_value);
+					word_value = ptrace(PTRACE_PEEKDATA, process->pid,
+						get_reg_from_struct(cur_arg, &ft_strace->regs) + (i * 8), NULL);
+					memmove(value_buffer + (i * 8), &word_value, sizeof(word_value)); // moving 8 bytes
+					if (memchr(value_buffer + (i * 8), 0, 8) != NULL)
+					{
+						end_found = 1;
+					}
+					i++;
 				}
-				i++;
+				printf("\"%s\"", value_buffer);
+				fflush(stdout);
 			}
-			// value_buffer[8] = 0;
-			printf("\"%s\"", value_buffer);
-			fflush(stdout);
+			else
+			{
+				// char * array
+				word_value = ptrace(PTRACE_PEEKUSER, process->pid,
+					get_user_reg_offset(cur_arg) * sizeof(unsigned long long int), NULL);
+				if ((char *)word_value == NULL)
+				{
+					printf("[NULL]");
+				}
+				else
+				{
+					printf("[%p]", (char *)word_value);
+				}
+				fflush(stdout);
+			}
 		}
+		// ----- Display long int
 		else if (strstr(arg_type_str, "unsigned long") != NULL)
 		{
-			errno = 0;
-			word_value = ptrace(PTRACE_PEEKDATA, process->pid,
-					get_reg_from_struct(cur_arg, &ft_strace->regs), NULL);
-
-			printf("%ld", word_value);
+			word_value = ptrace(PTRACE_PEEKUSER, process->pid,
+					get_user_reg_offset(cur_arg) * sizeof(unsigned long long int), NULL);
+			if (strstr(arg_type_str, "flags") != NULL)
+			{
+				printf("FLAG_MASK(%ld)", word_value);
+			}
+			else
+			{
+				printf("%ld", word_value);
+			}
+			
+			fflush(stdout);
+		}
+		// ----- Display int
+		else if (strstr(arg_type_str, "int") != NULL
+			||	strstr(arg_type_str, "size_t"))
+		{
+			word_value = ptrace(PTRACE_PEEKUSER, process->pid,
+				get_user_reg_offset(cur_arg) * sizeof(unsigned long long int), NULL);
+			if (strstr(arg_type_str, "flags") != NULL
+				|| strstr(arg_type_str, "mode") != NULL
+				|| strstr(arg_type_str, "prot") != NULL)
+			{
+				printf("FLAG_MASK(%d)", (int)word_value);
+			}
+			else
+			{
+				printf("%d", (int)word_value);
+			}
+			fflush(stdout);
+		}
+		// ----- Display struct pointer
+		else if (strstr(arg_type_str, "struct") != NULL
+			&& strstr(arg_type_str, "*") != NULL)
+		{
+			word_value = ptrace(PTRACE_PEEKUSER, process->pid,
+				get_user_reg_offset(cur_arg) * sizeof(unsigned long long int), NULL);
+			if ((char *)word_value == NULL)
+			{
+				printf("STRUCT{NULL}");
+			}
+			else
+			{
+				printf("STRUCT{%p}", (char *)word_value);
+			}
+			fflush(stdout);
+		}
+		// ----- Display void pointer
+		else if (strstr(arg_type_str, "void *") != NULL)
+		{
+			word_value = ptrace(PTRACE_PEEKUSER, process->pid,
+				get_user_reg_offset(cur_arg) * sizeof(unsigned long long int), NULL);
+			if ((char *)word_value == NULL)
+			{
+				printf("NULL");
+			}
+			else
+			{
+				printf("%p", (char *)word_value);
+			}
 			fflush(stdout);
 		}
 	}

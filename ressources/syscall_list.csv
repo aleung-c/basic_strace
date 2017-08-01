@@ -7,10 +7,10 @@
 6,I,sys_lstat,fconst char *filename,struct stat *statbuf,NULL,NULL,NULL,NULL
 7,I,sys_poll,struct poll_fd *ufds,unsigned int nfds,long timeout_msecs,NULL,NULL,NULL
 8,I,sys_lseek,unsigned int fd,off_t offset,unsigned int origin,NULL,NULL,NULL
-9,P,sys_mmap,void *addr,unsigned long len,unsigned long prot,unsigned long flags,unsigned long fd,unsigned long off
+9,P,sys_mmap,void *addr,unsigned long len,unsigned long prot,unsigned long flags,unsigned int fd,unsigned long off
 10,I,sys_mprotect,void *addr,size_t len,unsigned long prot,NULL,NULL,NULL
 11,I,sys_munmap,void *addr,size_t len,NULL,NULL,NULL,NULL
-12,I,sys_brk,unsigned long brk,NULL,NULL,NULL,NULL,NULL
+12,P,sys_brk,unsigned long brk,NULL,NULL,NULL,NULL,NULL
 13,I,sys_rt_sigaction,int sig,const struct sigaction *act,struct sigaction *oact,size_t sigsetsize,NULL,NULL
 14,I,sys_rt_sigprocmask,int how,sigset_t *nset,sigset_t *oset,size_t sigsetsize,NULL,NULL
 15,I,sys_rt_sigreturn,unsigned long __unused,NULL,NULL,NULL,NULL,NULL
@@ -156,7 +156,7 @@
 155,I,sys_pivot_root,const char *new_root,const char *put_old,NULL,NULL,NULL,NULL
 156,I,sys__sysctl,struct __sysctl_args *args,NULL,NULL,NULL,NULL,NULL
 157,I,sys_prctl,int option,unsigned long arg2,unsigned long arg3,unsigned long arg4,NULL,unsigned long arg5
-158,I,sys_arch_prctl,struct task_struct *task,int code,unsigned long *addr,NULL,NULL,NULL
+158,I,sys_arch_prctl,int code,unsigned long *addr,NULL,NULL,NULL,NULL
 159,I,sys_adjtimex,struct timex *txc_p,NULL,NULL,NULL,NULL,NULL
 160,I,sys_setrlimit,unsigned int resource,struct rlimit *rlim,NULL,NULL,NULL,NULL
 161,I,sys_chroot,const char *filename,NULL,NULL,NULL,NULL,NULL

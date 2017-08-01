@@ -146,7 +146,8 @@ void	display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
 		}
 		// ----- Display int
 		else if (strstr(arg_type_str, "int") != NULL
-			||	strstr(arg_type_str, "size_t"))
+			||	strstr(arg_type_str, "size_t")
+			||	strstr(arg_type_str, "pid"))
 		{
 			word_value = ptrace(PTRACE_PEEKUSER, process->pid,
 				get_user_reg_offset(cur_arg) * sizeof(unsigned long long int), NULL);
@@ -178,8 +179,8 @@ void	display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
 			}
 			fflush(stdout);
 		}
-		// ----- Display void pointer
-		else if (strstr(arg_type_str, "void *") != NULL)
+		// ----- Display any pointer if no specialized type were found.
+		else if (strstr(arg_type_str, "*") != NULL)
 		{
 			word_value = ptrace(PTRACE_PEEKUSER, process->pid,
 				get_user_reg_offset(cur_arg) * sizeof(unsigned long long int), NULL);
@@ -192,6 +193,10 @@ void	display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
 				printf("%p", (char *)word_value);
 			}
 			fflush(stdout);
+		}
+		else
+		{
+			printf("???"); // this should not happen.
 		}
 	}
 }

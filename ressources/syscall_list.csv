@@ -229,7 +229,7 @@
 228,I,sys_clock_gettime,const clockid_t which_clock,struct timespec *tp,NULL,NULL,NULL,NULL
 229,I,sys_clock_getres,const clockid_t which_clock,struct timespec *tp,NULL,NULL,NULL,NULL
 230,I,sys_clock_nanosleep,const clockid_t which_clock,int flags,const struct timespec *rqtp,struct timespec *rmtp,NULL,NULL
-231,I,sys_exit_group,int error_code,NULL,NULL,NULL,NULL,NULL
+231,X,sys_exit_group,int error_code,NULL,NULL,NULL,NULL,NULL
 232,I,sys_epoll_wait,int epfd,struct epoll_event *events,int maxevents,int timeout,NULL,NULL
 233,I,sys_epoll_ctl,int epfd,int op,int fd,struct epoll_event *event,NULL,NULL
 234,I,sys_tgkill,pid_t tgid,pid_t pid,int sig,NULL,NULL,NULL

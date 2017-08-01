@@ -105,6 +105,9 @@ void								trace_process(t_ft_strace *ft_strace,
 void								display_syscall(t_ft_strace *ft_strace,
 										t_process *process);
 
+void								display_signal(t_ft_strace *ft_strace,
+										t_process *process, int *status);
+
 void								display_arg_from_type(t_ft_strace *ft_strace,
 										t_process *process,
 										long syscall_nb, long orig_value, int cur_arg);

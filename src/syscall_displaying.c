@@ -50,41 +50,6 @@ void		display_syscall(t_ft_strace *ft_strace, t_process *process)
 			}
 		}
 		printf(")");
-
-		// // get RDI - first arg
-		// orig_value = ptrace(PTRACE_PEEKDATA, process->pid,
-		// 	ft_strace->regs.rdi, NULL);
-		// printf("%s\n", (char *)orig_value);
-
-		// get RAX --> syscall name.
-		// orig_rax = ptrace(PTRACE_PEEKUSER, process->pid,
-		// 	(sizeof(unsigned long long int) * ORIG_RAX), NULL);
-		// if (orig_rax != -1)
-		// 	printf("%s", ft_strace->syscall_list.list[orig_rax][SYSCALL_NAME]);
-		
-		// // get RDI --> First parameter of the function.
-		// orig_value = ptrace(PTRACE_PEEKUSER, process->pid,
-		// 	(sizeof(unsigned long long int) * RDI), NULL);
-		// printf("(");
-		// if (orig_value != -1 && ft_strace->syscall_list.list[orig_rax][SYSCALL_RDI])
-		// {
-		// 	display_arg_from_type(ft_strace, process, orig_rax, orig_value, SYSCALL_RDI);
-		// }
-
-		// // loop for all the other, because of the ',' separating each argument.
-		// for (cur_arg = SYSCALL_RSI; cur_arg < SYSCALL_R9 + 1; cur_arg++)
-		// {
-		// 	orig_value = ptrace(PTRACE_PEEKUSER, process->pid,
-		// 	(sizeof(unsigned long long int) * get_user_reg_offset(cur_arg)), NULL);
-		// 	if (orig_value != -1
-		// 		&& ft_strace->syscall_list.list[orig_rax][cur_arg] != NULL)
-		// 	{
-		// 		printf(", ");
-		// 		display_arg_from_type(ft_strace, process, orig_rax, orig_value, cur_arg);
-		// 	}
-		// }
-		// printf(")");
-	
 	}
 	else
 	{

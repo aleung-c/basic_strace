@@ -46,7 +46,7 @@
 */
 
 # define SYSCALLS_NB 328
-# define SYSCALLS_NB_COL 8 // nb of columns for each syscall
+# define SYSCALLS_NB_COL 9 // nb of columns for each syscall
 
 /*
 **	Program structs.

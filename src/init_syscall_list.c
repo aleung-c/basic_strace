@@ -53,7 +53,7 @@ void		init_syscall_list(t_ft_strace *ft_strace)
 			}
 
 			// Actual line parsing. CSV format --> separator is the ','
-			word = strtok(buf, ",\n");
+			word = strtok(buf, ",");
 			for (i = 0; word != NULL; word = strtok(NULL, ",\n"), i++)
 			{
 				if (strncmp(word, "NULL", 4) != 0)

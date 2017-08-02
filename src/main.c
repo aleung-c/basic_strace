@@ -12,12 +12,12 @@
 
 #include "../includes/ft_strace.h"
 
-int		main(int argc, char **argv)
+int		main(int argc, char **argv, char** envp)
 {
 	printf("Hello ft_strace!\n");
 	if (argc > 1)
 	{
-		ft_strace(argc, argv);
+		ft_strace(argc, argv, envp);
 	}
 	else
 	{

@@ -77,6 +77,7 @@ typedef struct						s_syscall_list
 
 typedef struct						s_ft_strace
 {
+	int								in_syscall;
 	t_syscall_list					syscall_list;
 	struct user_regs_struct			regs;
 }									t_ft_strace;
@@ -93,19 +94,20 @@ typedef struct						s_process
 
 void								usage();
 
-void								ft_strace(int argc, char **argv);
+void								ft_strace(int argc, char **argv, char **envp);
 
 void								init_syscall_list(t_ft_strace *ft_strace);
 
 t_process							*get_process(char *arg);
 
 void								trace_process(t_ft_strace *ft_strace,
-										t_process *process, int argc, char **argv);
+										t_process *process, int argc, char **argv,
+										char **envp);
 
 void								display_syscall(t_ft_strace *ft_strace,
 										t_process *process);
 
-void								display_signal(t_ft_strace *ft_strace,
+int									display_signal(t_ft_strace *ft_strace,
 										t_process *process, int *status);
 
 void								display_arg_from_type(t_ft_strace *ft_strace,

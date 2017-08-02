@@ -12,7 +12,43 @@
 
 #include "../includes/ft_strace.h"
 
-void			ft_strace(int argc, char **argv)
+static const char *sys_signame[] =
+{
+	"NULL",
+	"SIGHUP",
+	"SIGINT",
+	"SIGQUIT",
+	"SIGILL",
+	"SIGTRAP",
+	"SIGABRT",
+	"SIGEMT",
+	"SIGFPE",
+	"SIGKILL",
+	"SIGBUS",
+	"SIGSEGV",
+	"SIGSYS",
+	"SIGPIPE",
+	"SIGALRM",
+	"SIGTERM",
+	"SIGURG",
+	"SIGSTOP",
+	"SIGTSTP",
+	"SIGCONT",
+	"SIGCHLD",
+	"SIGTTIN",
+	"SIGTTOU",
+	"SIGIO",
+	"SIGXCPU",
+	"SIGXFSZ",
+	"SIGVTALRM",
+	"SIGPROF",
+	"SIGWINCH",
+	"SIGINFO",
+	"SIGUSR1",
+	"SIGUSR2"
+};
+
+void			ft_strace(int argc, char **argv, char **envp)
 {
 	t_ft_strace		ft_strace;
 	t_process		*process;
@@ -25,7 +61,7 @@ void			ft_strace(int argc, char **argv)
 		if (process)
 		{
 			printf(KGRN "- tracing %s%s\n", process->path, KRESET);
-			trace_process(&ft_strace, process, argc, argv);
+			trace_process(&ft_strace, process, argc, argv, envp);
 		}
 	}
 }
@@ -39,7 +75,8 @@ void			ft_strace(int argc, char **argv)
 // => must catch in the tracer every signal that can stop the tracer!
 // SIGKILL and SIGSTOP cant be caught.
 
-void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char **argv)
+void			trace_process(t_ft_strace *ft_strace, t_process *process,
+					int argc, char **argv, char **envp)
 {
 	int			pid;
 	int			status;
@@ -54,23 +91,21 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char 
 		// need to ptrace the new process then execve the said exec.
 		// close(1); // silence prints from the child.
 		raise(SIGSTOP);
-		execve(process->path, argv + 2, NULL);
+		execve(process->path, argv + 1, envp);
 	}
 	else
 	{
+		ft_strace->in_syscall = 0;
 		// prepare signal catching in the tracer.
 		sigemptyset(&new_sigset);
 		// empty the set
 		sigemptyset(&empty);
-		
-
 		sigaddset(&new_sigset, SIGHUP);
 		sigaddset(&new_sigset, SIGINT);
 		sigaddset(&new_sigset, SIGQUIT);
 		sigaddset(&new_sigset, SIGPIPE);
 		sigaddset(&new_sigset, SIGTERM);
 		sigaddset(&new_sigset, SIGBUS);
-
 		sigprocmask(SIG_SETMASK, &empty, NULL);
 		sigprocmask(SIG_BLOCK, &new_sigset, NULL);
 
@@ -80,16 +115,16 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char 
 		ptrace(PTRACE_INTERRUPT, pid, 0, 0);
 		while (1)
 		{
-			
-			
 			ptrace(PTRACE_SYSCALL, pid, 0, 0);
 			waitpid(-1, &status, WUNTRACED);
+			if (WIFSIGNALED(status))
+			{
+				printf("\n+++ killed by %s! +++\n", sys_signame[WTERMSIG(status)]);
+				break ;
+			}
 			if (WIFEXITED(status))
 			{
-				if (WIFSIGNALED(status))
-				{
-					printf("terminated by signal!\n");
-				}
+				printf("\n+++ exited with %d +++\n", WEXITSTATUS(status));
 				break;
 			}
 			if (WIFSTOPPED(status))
@@ -97,7 +132,8 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process, int argc, char 
 				// a stop may come from the ptrace(value == 133), or
 				// from any signal. The check is made in those functions.
 				display_syscall(ft_strace, process);
-				display_signal(ft_strace, process, &status);
+				if (display_signal(ft_strace, process, &status) == -1)
+					break ;
 			}
 		}
 	}

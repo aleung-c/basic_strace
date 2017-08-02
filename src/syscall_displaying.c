@@ -22,53 +22,60 @@ void		display_syscall(t_ft_strace *ft_strace, t_process *process)
 	long						orig_rax; // SYSCALL_NB
 	long						ret_rax; // SYSCALL_RET
 	int							cur_arg;
-	static int					in_syscall = 0;
 
 	(void)ft_strace;
-	if (in_syscall == 0)
+	if (ft_strace->in_syscall == 0)
 	{
 		// entering syscall
-		in_syscall = 1;
+		ft_strace->in_syscall = 1;
 		ptrace(PTRACE_GETREGS, process->pid, NULL, &ft_strace->regs);
-
-		orig_rax = ptrace(PTRACE_PEEKDATA, process->pid,
-			ft_strace->regs.orig_rax, NULL);
-		printf("%s(",
-			ft_strace->syscall_list.list[ft_strace->regs.orig_rax][SYSCALL_NAME]);
-		fflush(stdout);
-
-		// loop for all the other, because of the ',' separating each argument.
-		for (cur_arg = SYSCALL_RDI; cur_arg < SYSCALL_R9 + 1; cur_arg++)
+		errno = 0;
+		orig_rax = ptrace(PTRACE_PEEKUSER, process->pid,
+			(sizeof(unsigned long long int) * ORIG_RAX), NULL);
+		// printf("%ld\n", orig_rax);
+		if (orig_rax != -1)
 		{
-			if (ft_strace->syscall_list.list[ft_strace->regs.orig_rax][cur_arg] != NULL)
+			printf("%s(",
+				ft_strace->syscall_list.list[ft_strace->regs.orig_rax][SYSCALL_NAME]);
+			fflush(stdout);
+
+			// loop for all the other, because of the ',' separating each argument.
+			for (cur_arg = SYSCALL_RDI; cur_arg < SYSCALL_R9 + 1; cur_arg++)
 			{
-				if (cur_arg != SYSCALL_RDI)
-					printf(", ");
-				display_arg_from_type(ft_strace, process, ft_strace->regs.orig_rax, 0, cur_arg);
+				if (ft_strace->syscall_list.list[ft_strace->regs.orig_rax][cur_arg] != NULL)
+				{
+					if (cur_arg != SYSCALL_RDI)
+						printf(", ");
+					display_arg_from_type(ft_strace, process, ft_strace->regs.orig_rax, 0, cur_arg);
+				}
 			}
+			printf(")");
 		}
-		printf(")");
 	}
 	else
 	{
 		// exiting syscall - display return val;
 		orig_rax = ptrace(PTRACE_PEEKUSER, process->pid,
 			(sizeof(unsigned long long int) * ORIG_RAX), NULL);
-		ret_rax = ptrace(PTRACE_PEEKUSER, process->pid,
-			(sizeof(unsigned long long int) * RAX), NULL);
-		if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "P", 1) == 0)
+		if (orig_rax != -1)
 		{
-			printf(" = %p\n", (char *)ret_rax);
+			ret_rax = ptrace(PTRACE_PEEKUSER, process->pid,
+				(sizeof(unsigned long long int) * RAX), NULL);
+			if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "P", 1) == 0)
+			{
+				printf(" = %p\n", (char *)ret_rax);
+			}
+			else if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "I", 1) == 0)
+			{
+				printf(" = %ld\n", ret_rax);
+			}
+			else if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "X", 1) == 0)
+			{
+				printf(" = ?\n");
+			}
+			ft_strace->in_syscall = 0;
 		}
-		else if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "I", 1) == 0)
-		{
-			printf(" = %ld\n", ret_rax);
-		}
-		else if (strncmp(ft_strace->syscall_list.list[orig_rax][SYSCALL_RET], "X", 1) == 0)
-		{
-			printf(" = ?\n");
-		}
-		in_syscall = 0;
+		
 	}
 }
 
@@ -85,7 +92,6 @@ void	display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
 	int						i = 0;
 	int						end_found = 0;
 
-	(void)process;
 	(void)orig_value;
 	arg_type_str = ft_strace->syscall_list.list[syscall_nb][cur_arg];
 	// we display according to type.
@@ -99,7 +105,6 @@ void	display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
 			{
 				while (end_found == 0 && i != 5)
 				{
-					// printf("%016x\n", (unsigned int)orig_value);
 					word_value = ptrace(PTRACE_PEEKDATA, process->pid,
 						get_reg_from_struct(cur_arg, &ft_strace->regs) + (i * 8), NULL);
 					memmove(value_buffer + (i * 8), &word_value, sizeof(word_value)); // moving 8 bytes
@@ -141,7 +146,6 @@ void	display_arg_from_type(t_ft_strace *ft_strace, t_process *process,
 			{
 				printf("%ld", word_value);
 			}
-			
 			fflush(stdout);
 		}
 		// ----- Display int

@@ -31,10 +31,10 @@ static const char *sys_signame[] =
 	"SIGALRM",
 	"SIGTERM",
 	"SIGURG",
-	"SIGSTOP",
+	"SIGCHLD",
 	"SIGTSTP",
 	"SIGCONT",
-	"SIGCHLD",
+	"SIGSTOP",
 	"SIGTTIN",
 	"SIGTTOU",
 	"SIGIO",
@@ -60,7 +60,7 @@ void			ft_strace(int argc, char **argv, char **envp)
 		process = get_process(argv[1]);
 		if (process)
 		{
-			printf(KGRN "- tracing %s%s\n", process->path, KRESET);
+			// printf(KGRN "- tracing %s%s\n", process->path, KRESET);
 			trace_process(&ft_strace, process, argc, argv, envp);
 		}
 	}
@@ -70,10 +70,6 @@ void			ft_strace(int argc, char **argv, char **envp)
 **	This is where ill fork the main program to the process and
 **	follow it with ptrace();
 */
-
-// TODO !! : Use sigprocmask or the grade will be 0 !
-// => must catch in the tracer every signal that can stop the tracer!
-// SIGKILL and SIGSTOP cant be caught.
 
 void			trace_process(t_ft_strace *ft_strace, t_process *process,
 					int argc, char **argv, char **envp)
@@ -107,7 +103,7 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process,
 		sigaddset(&new_sigset, SIGTERM);
 		sigaddset(&new_sigset, SIGBUS);
 		sigprocmask(SIG_SETMASK, &empty, NULL);
-		sigprocmask(SIG_BLOCK, &new_sigset, NULL);
+		// sigprocmask(SIG_BLOCK, &new_sigset, NULL);
 
 		process->pid = pid;
 		// Parent process. pid var has the pid of child.
@@ -117,6 +113,7 @@ void			trace_process(t_ft_strace *ft_strace, t_process *process,
 		{
 			ptrace(PTRACE_SYSCALL, pid, 0, 0);
 			waitpid(-1, &status, WUNTRACED);
+			sigprocmask(SIG_BLOCK, &new_sigset, NULL);
 			if (WIFSIGNALED(status))
 			{
 				printf("\n+++ killed by %s! +++\n", sys_signame[WTERMSIG(status)]);

@@ -31,10 +31,10 @@ static const char *sys_signame[] =
 	"SIGALRM",
 	"SIGTERM",
 	"SIGURG",
-	"SIGSTOP",
+	"SIGCHLD",
 	"SIGTSTP",
 	"SIGCONT",
-	"SIGCHLD",
+	"SIGSTOP",
 	"SIGTTIN",
 	"SIGTTOU",
 	"SIGIO",
@@ -56,9 +56,7 @@ int		display_signal(t_ft_strace *ft_strace, t_process *process, int *status)
 	(void)ft_strace;
 	(void)process;
 	stop_sig = WSTOPSIG(*status);
-	if (stop_sig != SIGTRAP
-		&& stop_sig != SIGCONT
-		&& stop_sig != 133)
+	if (stop_sig != 133)
 	{
 		ptrace(PTRACE_GETSIGINFO, process->pid, NULL, &sig_info);
 
@@ -75,14 +73,17 @@ int		display_signal(t_ft_strace *ft_strace, t_process *process, int *status)
 		}
 		else if (stop_sig == SIGSEGV)
 		{
-			// printf("\n--- SIGSEGV ---\n");
 			printf("+++ killed by SIGSEGV +++\n");
 			return (-1);
 		}
 		else if (stop_sig == SIGABRT)
 		{
-			// printf("\n--- SIGABRT ---\n");
 			return (-1);
+		}
+		else if (stop_sig == SIGSTOP)
+		{
+			ft_strace->in_syscall = 0;
+			return (0);
 		}
 		else if (stop_sig == SIGWINCH)
 		{

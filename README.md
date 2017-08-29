@@ -1,4 +1,4 @@
-# ft_strace
+# basic_strace
 Recreating a basic executable tracer.
 
 This little project is an implementation of the strace/truss command.
@@ -9,3 +9,5 @@ To do that, the [ptrace()](http://man7.org/linux/man-pages/man2/ptrace.2.html) s
 It has many options, and allows to break the execution of the "tracee" and "peek" into its memory.
 
 In my opinion, this project is a good introduction to understand the underlying workings of utilities like gdb.
+
+(Implemented under debian 8.xx)
